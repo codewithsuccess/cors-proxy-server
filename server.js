@@ -11,6 +11,7 @@ const allowedOrigins = [
     'https://sphublive.com',
     'https://splendid-licorice-cbeb7e.netlify.app',
     'https://clever-kulfi-1cf3ba.netlify.app',
+    'http://127.0.0.1:5500',
     'http://localhost:3001' // for local development
 ];
 
