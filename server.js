@@ -599,24 +599,27 @@ const allowedDomains = ["sphublive.com", "uscore.tech", "localhost", "127.0.0.1"
 // Middleware for domain protection
 // Domain protection + CORS
 function domainProtection(req, res, next) {
-    const referer = req.get("referer") || "";
-    const origin = req.get("origin") || "";
+    const origin = req.get("origin");
 
-    const allowed = allowedDomains.some(domain => referer.includes(domain) || origin.includes(domain));
-
-    if (!allowed) {
-        return res.status(403).send("Forbidden: This stream can only be played on allowed domains.");
+    if (origin) {
+        const allowed = allowedDomains.some(domain => origin.includes(domain));
+        if (!allowed) {
+            return res.status(403).send("Forbidden: This stream can only be played on allowed domains.");
+        }
+        // Proper CORS header
+        res.setHeader("Access-Control-Allow-Origin", origin);
+        res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
     }
 
-    // Add CORS header only for allowed domains
-    const allowedDomain = allowedDomains.find(domain => referer.includes(domain) || origin.includes(domain));
-    if (allowedDomain) {
-        res.setHeader("Access-Control-Allow-Origin", `https://${allowedDomain}`);
-        res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    // Handle preflight requests
+    if (req.method === "OPTIONS") {
+        return res.sendStatus(204);
     }
 
     next();
 }
+
 
 
 // Load M3U playlist
